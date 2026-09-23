@@ -1,7 +1,8 @@
 from django.urls import path
-from .views import ResumeUploadView, ResumeMatchView, JobPostingListView, MatchResultListView
+from .views import APIRootView, ResumeUploadView, ResumeMatchView, JobPostingListView, MatchResultListView
 
 urlpatterns = [
+    path('', APIRootView.as_view(), name='api-root'),
     path('upload/', ResumeUploadView.as_view(), name='resume-upload'),
     path('match/', ResumeMatchView.as_view(), name='resume-match-root'),
     path('match/<int:resume_id>/', ResumeMatchView.as_view(), name='resume-match'),

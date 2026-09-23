@@ -13,6 +13,21 @@ from .serializers import (
 )
 from .services import parse_resume, match_resume_to_job
 
+class APIRootView(APIView):
+    def get(self, request, *args, **kwargs):
+        return Response({
+            "status": "online",
+            "app": "AI Resume & Job Matcher API",
+            "version": "2.0.0",
+            "endpoints": {
+                "upload": request.build_absolute_uri("upload/"),
+                "jobs": request.build_absolute_uri("jobs/"),
+                "match": request.build_absolute_uri("match/"),
+                "results": request.build_absolute_uri("results/"),
+            },
+            "frontend_app": "http://10.91.234.192:5173"
+        }, status=status.HTTP_200_OK)
+
 class ResumeUploadView(APIView):
     parser_classes = [MultiPartParser]
 
