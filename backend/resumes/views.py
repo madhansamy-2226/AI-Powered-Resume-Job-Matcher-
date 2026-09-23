@@ -16,6 +16,11 @@ from .services import parse_resume, match_resume_to_job
 class ResumeUploadView(APIView):
     parser_classes = [MultiPartParser]
 
+    def get(self, request, *args, **kwargs):
+        resumes = Resume.objects.order_by('-uploaded_at')[:10]
+        serializer = ResumeSerializer(resumes, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     def post(self, request, *args, **kwargs):
         serializer = ResumeUploadSerializer(data=request.data)
         if serializer.is_valid():
@@ -45,7 +50,13 @@ class ResumeUploadView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ResumeMatchView(APIView):
+    def get(self, request, resume_id, *args, **kwargs):
+        return self._process_match(resume_id)
+
     def post(self, request, resume_id, *args, **kwargs):
+        return self._process_match(resume_id)
+
+    def _process_match(self, resume_id):
         resume = get_object_or_404(Resume, id=resume_id)
         jobs = JobPosting.objects.all()
         
@@ -80,8 +91,18 @@ class JobPostingListView(APIView):
         serializer = JobPostingSerializer(jobs, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    def post(self, request, *args, **kwargs):
+        jobs = JobPosting.objects.all()
+        serializer = JobPostingSerializer(jobs, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 class MatchResultListView(APIView):
     def get(self, request, resume_id, *args, **kwargs):
+        results = MatchResult.objects.filter(resume_id=resume_id).order_by('-score')
+        serializer = MatchResultSerializer(results, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, resume_id, *args, **kwargs):
         results = MatchResult.objects.filter(resume_id=resume_id).order_by('-score')
         serializer = MatchResultSerializer(results, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
