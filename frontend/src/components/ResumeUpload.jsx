@@ -155,7 +155,13 @@ export default function ResumeUpload({ onSuccess }) {
       });
       onSuccess(response.data);
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to extract resume with Gemini AI.');
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.detail ||
+        (err.message === 'Network Error'
+          ? 'Cannot connect to backend server. Please ensure the Django backend is running at http://localhost:8000.'
+          : err.message || 'Failed to extract resume with Gemini AI.');
+      setError(message);
     } finally {
       setIsLoading(false);
     }

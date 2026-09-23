@@ -19,12 +19,13 @@ COMMON_SKILLS = [
 ]
 
 def get_client():
-    key = os.environ.get('GEMINI_API_KEY', '')
-    if not key or not key.startswith('AIzaSy'):
+    key = os.environ.get('GEMINI_API_KEY', '').strip()
+    if not key:
         return None
     try:
         return genai.Client(api_key=key)
-    except Exception:
+    except Exception as e:
+        print(f"[services] Failed to initialize Gemini client: {e}")
         return None
 
 def fallback_parse_resume(text: str) -> dict:
