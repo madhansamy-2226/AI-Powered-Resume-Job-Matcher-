@@ -1,221 +1,469 @@
-# AI Resume-Job Matcher
+# 🤖 AI Resume & Job Matcher
 
-An AI-powered web application that automates resume screening and candidate evaluation. Users upload a PDF resume, and the system extracts structured profile data (skills, experience, education) using **Google Gemini 2.0 Flash** and **pdfplumber**, storing it in **Supabase PostgreSQL**, and calculating multi-dimensional job compatibility scores across active job listings.
+An AI-powered full-stack application that automates **resume parsing, candidate profiling, and job compatibility analysis**. Users can upload PDF resumes, extract structured candidate information using **Google Gemini 2.0 Flash**, and evaluate compatibility against job postings using an automated matching engine.
 
----
-
-## 📄 Resume Bullet Points (Ready to Copy)
-
-Add this project to your resume under **Projects**:
-
-### **Option 1 (Full-Stack / Python Focused)**
-> **AI Resume & Job Matcher | Django REST Framework, React, PostgreSQL, Gemini API**
-> - Developed an automated resume parsing and job matching web platform using **Django REST Framework** and **React.js (Vite)** with **Tailwind CSS**.
-> - Integrated **pdfplumber** and **Google Gemini 2.0 Flash** LLM to extract technical skills, professional experience, and education into structured JSON with 98% accuracy.
-> - Implemented an automated scoring algorithm comparing candidate credentials against job requisitions to compute **0–100% compatibility scores**, personalized feedback, strengths, and skill gaps.
-> - Architected cloud persistence using **Supabase PostgreSQL**, engineered 4 REST APIs with multi-part file uploads, and deployed on Render and Vercel.
-
-### **Option 2 (Concise 2-Line Format)**
-> - **AI Resume-Job Matcher (Django, React, Gemini AI, PostgreSQL):** Built full-stack AI screening app using DRF and Gemini 2.0 Flash to parse PDF resumes and evaluate multi-role compatibility scores.
-> - Engineered RESTful APIs with Supabase PostgreSQL, automated keyword and semantic matching, and built responsive React dashboard with instant demo benchmarks.
+The application combines **AI-powered semantic evaluation with rule-based fallback matching** to provide reliable compatibility scores, personalized insights, strengths, and skill gaps.
 
 ---
 
-## 🛠️ Tech Stack
+## 🚀 Features
 
-| Layer | Technologies Used |
-|---|---|
-| **Backend** | Python 3.11, Django 5.x, Django REST Framework (DRF), Gunicorn, WhiteNoise |
-| **AI / LLM** | Google Gemini 2.0 Flash (`google-genai` SDK) + Rule-Based Fallback NLP |
-| **PDF Parser** | `pdfplumber` (text & layout stream extraction) |
-| **Database** | PostgreSQL (Cloud Supabase Database with SSL Connection Pooling) |
-| **Frontend** | React 18, Vite, Tailwind CSS, Axios |
-| **Deployment** | Vercel (Frontend), Render (Backend API), Supabase (Database) |
+* 📄 **AI Resume Parsing** — Extracts skills, experience, education, and summary from PDF resumes.
+* 🤖 **Gemini AI Integration** — Uses Google Gemini 2.0 Flash for structured resume analysis.
+* 🔍 **Intelligent Job Matching** — Compares candidate profiles against job requirements.
+* 📊 **Compatibility Scoring** — Generates job compatibility scores on a 0–100 scale.
+* 💡 **Personalized Insights** — Identifies candidate strengths and skill gaps for each job.
+* 🔄 **Rule-Based Fallback** — Provides matching functionality when AI processing is unavailable.
+* 🔐 **RESTful API Architecture** — Dedicated APIs for resumes, jobs, and matching results.
+* 🗄️ **Cloud PostgreSQL Database** — Stores resumes, job postings, and historical match results.
+* 📱 **Responsive Dashboard** — React-based interface for viewing and filtering job matches.
+* ☁️ **Cloud Deployment** — Frontend and backend deployed independently for scalability.
 
 ---
 
-## ⚙️ How It Works (Core Architecture Flow)
+## 🏗️ System Architecture
 
+```text
+                    ┌──────────────────────┐
+                    │      React.js        │
+                    │   Frontend / Vite    │
+                    └──────────┬───────────┘
+                               │
+                               │ REST API
+                               ▼
+                    ┌──────────────────────┐
+                    │   Django REST API    │
+                    │      Backend         │
+                    └──────────┬───────────┘
+                               │
+                 ┌─────────────┴─────────────┐
+                 │                           │
+                 ▼                           ▼
+        ┌─────────────────┐        ┌─────────────────┐
+        │   pdfplumber    │        │  Gemini 2.0     │
+        │  PDF Extraction │        │     Flash       │
+        └────────┬────────┘        └────────┬────────┘
+                 │                          │
+                 └────────────┬─────────────┘
+                              ▼
+                    ┌──────────────────────┐
+                    │ Structured Candidate │
+                    │       Profile        │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │ Supabase PostgreSQL   │
+                    │                      │
+                    │ Resumes              │
+                    │ Job Postings         │
+                    │ Match Results        │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │   Matching Engine     │
+                    │ Skills + Experience  │
+                    │ + Domain Alignment   │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │   Match Dashboard    │
+                    │ Score + Strengths    │
+                    │ + Skill Gaps         │
+                    └──────────────────────┘
 ```
-[User Uploads PDF] 
-        │
-        ▼
-[Django Backend (`/api/upload/`)]
-        │
-        ├─► [pdfplumber] ──────► Extracts raw text lines from PDF pages
-        │
-        └─► [Gemini 2.0 Flash] ──► Extracts structured JSON: { skills, experience, education, summary }
-        │
-        ▼
-[Saved to Supabase PostgreSQL (`resumes_resume` table)]
-        │
-        ▼
-[User Triggers Match (`/api/match/<id>/`)]
-        │
-        ├─► Fetches all Job Postings from Database
-        │
-        ├─► Compares Candidate Skills & Experience vs. Job Requirements
-        │
-        └─► Generates Fit Score (0-100%), Explanation, Strengths & Gaps
-        │
-        ▼
-[React Frontend Dashboard Displays Filterable Job Match Cards]
+
+---
+
+## 🔄 Application Workflow
+
+```text
+Upload Resume
+      ↓
+Extract PDF Text
+      ↓
+Gemini AI Resume Analysis
+      ↓
+Structured Candidate Profile
+      ↓
+Store in PostgreSQL
+      ↓
+Fetch Active Job Postings
+      ↓
+Evaluate Candidate vs Job
+      ↓
+Generate Compatibility Score
+      ↓
+Display Results & Skill Gaps
 ```
 
 ---
 
-## 📊 How Fit Percentages & Match Scores Are Calculated
+## 🧠 AI Matching Engine
 
-The system uses a **dual-layer evaluation model** to ensure high reliability and zero downtime:
+The application uses a dual-layer matching approach.
 
-### 1. Primary Model: Gemini 2.0 Flash Prompt Evaluation
-Candidate credentials (parsed skills array, internship experience, and professional summary) are sent alongside the job posting's full description and technical requirements to Gemini LLM with a strict evaluation prompt:
-- **Skills Alignment (50% weight):** Does the candidate possess required programming languages, libraries, and tools?
-- **Experience Relevance (30% weight):** Has the candidate built relevant projects or completed internships in related technologies?
-- **Domain & Foundational Fit (20% weight):** Education, computer science fundamentals, and role suitability.
+### Primary: Gemini AI Evaluation
 
-### 2. Secondary Model: Rule-Based Fallback Scoring
-If the LLM key is unavailable or rate-limited, the system executes an automated keyword overlap scoring algorithm:
-$$\text{Score} = \text{Base (45)} + \min(\text{Matched Skills} \times 10, 45) + \min(\text{Title Matches} \times 5, 10)$$
-- Caps fit score between $35\%$ (baseline) and $96\%$ (top candidate).
-- Extracts candidate **Strengths** (e.g., *"Hands-on competency in Python, Django, PostgreSQL"*).
-- Identifies **Skill Gaps** (e.g., *"Further experience with Docker, CI/CD would strengthen candidature"*).
+Candidate information is evaluated against job descriptions and requirements using Google Gemini 2.0 Flash.
+
+The evaluation considers:
+
+| Evaluation Area           | Weight |
+| ------------------------- | -----: |
+| Skills Alignment          |    50% |
+| Experience Relevance      |    30% |
+| Domain & Foundational Fit |    20% |
+
+The system generates:
+
+* Compatibility score
+* Matching explanation
+* Candidate strengths
+* Skill gaps
+* Job-specific feedback
+
+### Fallback: Rule-Based Matching
+
+If AI processing is unavailable or rate-limited, the application uses a rule-based keyword matching algorithm based on:
+
+* Matched technical skills
+* Job title alignment
+* Candidate profile keywords
+
+This provides a fallback mechanism for continued matching functionality.
 
 ---
 
-## 🔌 REST API Endpoints
+## 🛠️ Technology Stack
 
-### 1. `POST /api/upload/`
-Uploads a PDF resume, parses content with Gemini AI, and saves to database.
-- **Request:** `multipart/form-data` with `file: <resume.pdf>`
-- **Response (201 Created):**
+### Backend
+
+* Python 3.11
+* Django 5.x
+* Django REST Framework
+* Gunicorn
+* WhiteNoise
+
+### AI & Processing
+
+* Google Gemini 2.0 Flash
+* Google GenAI SDK
+* pdfplumber
+* Rule-Based NLP
+
+### Frontend
+
+* React 18
+* Vite
+* JavaScript
+* Tailwind CSS
+* Axios
+
+### Database
+
+* PostgreSQL
+* Supabase
+* JSONB
+
+### Deployment
+
+* Vercel — Frontend
+* Render — Backend API
+* Supabase — PostgreSQL Database
+
+---
+
+## 🔌 REST API
+
+| Method | Endpoint                    | Description                         |
+| ------ | --------------------------- | ----------------------------------- |
+| `POST` | `/api/upload/`              | Upload and process a PDF resume     |
+| `POST` | `/api/match/<resume_id>/`   | Match a resume against job postings |
+| `GET`  | `/api/jobs/`                | Retrieve available job postings     |
+| `GET`  | `/api/results/<resume_id>/` | Retrieve previous matching results  |
+
+### Resume Upload
+
+```http
+POST /api/upload/
+Content-Type: multipart/form-data
+```
+
+The endpoint:
+
+1. Accepts a PDF resume.
+2. Extracts text using `pdfplumber`.
+3. Sends structured content to Gemini.
+4. Generates candidate profile data.
+5. Stores the processed resume in PostgreSQL.
+
+### Job Matching
+
+```http
+POST /api/match/<resume_id>/
+```
+
+Returns job-specific:
+
 ```json
 {
-  "id": 1,
-  "raw_text": "Madhan S\nFull Stack Python Developer...",
-  "parsed_data": {
-    "summary": "Full Stack Python Developer with experience in Django, React, and PostgreSQL...",
-    "skills": ["Python", "Django", "DRF", "React.js", "PostgreSQL", "Docker", "REST APIs"],
-    "experience": [
-      {
-        "role": "Python Developer Intern",
-        "company": "Besant Technologies",
-        "duration": "Jul 2025 – Feb 2026",
-        "description": "Built REST APIs with Django REST Framework and React."
-      }
-    ],
-    "education": [
-      {
-        "degree": "Bachelor of Computer Science",
-        "institution": "Thiruvalluvar University",
-        "year": "2022 – 2025"
-      }
-    ]
-  }
+  "score": 92,
+  "explanation": "Strong alignment with the required backend technologies.",
+  "strengths": [
+    "Python",
+    "Django",
+    "PostgreSQL"
+  ],
+  "gaps": [
+    "CI/CD experience"
+  ]
 }
 ```
 
-### 2. `POST /api/match/<resume_id>/`
-Evaluates a parsed resume against all job postings stored in the database.
-- **Response (200 OK):**
-```json
-[
-  {
-    "id": 1,
-    "score": 95,
-    "explanation": "Candidate matches 4 core technical requirements for Backend Developer. Demonstrates strong skills in Python, Django, and PostgreSQL.",
-    "strengths": [
-      "Hands-on competency in Python",
-      "Hands-on competency in Django",
-      "Experience with PostgreSQL database optimization"
-    ],
-    "gaps": [
-      "Expand portfolio with containerized production CI/CD deployments"
-    ],
-    "job": {
-      "id": 2,
-      "title": "Backend Developer",
-      "company": "DataFlow Systems",
-      "requirements": "- 4+ years of backend development experience with Python\n- Django and DRF\n- PostgreSQL"
-    }
-  }
-]
+---
+
+## 🗄️ Data Model
+
+The application uses three primary entities:
+
+```text
+Resume
+ ├── Candidate profile
+ ├── Extracted skills
+ ├── Experience
+ └── Education
+
+Job Posting
+ ├── Title
+ ├── Company
+ ├── Description
+ └── Requirements
+
+Match Result
+ ├── Compatibility score
+ ├── Explanation
+ ├── Strengths
+ └── Skill gaps
 ```
 
-### 3. `GET /api/jobs/`
-Lists all active job postings available for matching.
-
-### 4. `GET /api/results/<resume_id>/`
-Fetches saved historical match results for a candidate resume.
+Resume and job data are persisted in **Supabase PostgreSQL**, while structured AI-generated profile information and matching insights are stored using PostgreSQL JSONB fields.
 
 ---
 
-## 🗄️ Database Schema (Supabase PostgreSQL)
+## 📂 Project Structure
 
-```sql
--- 1. Resumes
-CREATE TABLE resumes_resume (
-    id BIGSERIAL PRIMARY KEY,
-    file VARCHAR(100) NOT NULL,
-    raw_text TEXT NOT NULL,
-    parsed_data JSONB,
-    uploaded_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- 2. Job Postings
-CREATE TABLE resumes_jobposting (
-    id BIGSERIAL PRIMARY KEY,
-    title VARCHAR(200) NOT NULL,
-    company VARCHAR(200) NOT NULL,
-    description TEXT NOT NULL,
-    requirements TEXT NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- 3. Match Results
-CREATE TABLE resumes_matchresult (
-    id BIGSERIAL PRIMARY KEY,
-    score INTEGER NOT NULL,
-    explanation TEXT NOT NULL,
-    strengths JSONB DEFAULT '[]'::jsonb,
-    gaps JSONB DEFAULT '[]'::jsonb,
-    matched_at TIMESTAMPTZ DEFAULT NOW(),
-    resume_id BIGINT REFERENCES resumes_resume(id) ON DELETE CASCADE,
-    job_id BIGINT REFERENCES resumes_jobposting(id) ON DELETE CASCADE,
-    UNIQUE (resume_id, job_id)
-);
+```text
+AI-Resume-Job-Matcher/
+│
+├── backend/
+│   ├── config/
+│   ├── resumes/
+│   ├── manage.py
+│   └── requirements.txt
+│
+├── frontend/
+│   ├── src/
+│   ├── public/
+│   ├── package.json
+│   └── vite.config.js
+│
+├── DEPLOYMENT.md
+├── README.md
+└── .gitignore
 ```
 
 ---
 
-## 💻 Local Quickstart
+## 💻 Local Development
 
-### 1. Backend Setup
+### Prerequisites
+
+Make sure you have installed:
+
+* Python 3.11+
+* Node.js 18+
+* npm
+* PostgreSQL / Supabase account
+* Google Gemini API key
+
+### 1. Clone Repository
+
+```bash
+git clone https://github.com/your-username/AI-Resume-Job-Matcher.git
+
+cd AI-Resume-Job-Matcher
+```
+
+### 2. Backend Setup
+
 ```bash
 cd backend
-python -m venv venv
-.\venv\Scripts\activate      # Windows (or: source venv/bin/activate on Mac/Linux)
-pip install -r requirements.txt
 
-# Start Django server
+python -m venv venv
+```
+
+#### Windows
+
+```bash
+.\venv\Scripts\activate
+```
+
+#### macOS / Linux
+
+```bash
+source venv/bin/activate
+```
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Run migrations:
+
+```bash
+python manage.py migrate
+```
+
+Start the development server:
+
+```bash
 python manage.py runserver
 ```
 
-### 2. Frontend Setup
-```bash
-cd frontend
-npm install
-npm run dev
-```
+Backend:
 
-Open **`http://localhost:5173/`** to use the application.
+```text
+http://127.0.0.1:8000/
+```
 
 ---
 
-## 🌐 Production Deployment Summary
+### 3. Frontend Setup
 
-- **Database:** Supabase PostgreSQL *(Active & Cloud Hosted)*
-- **Backend (Render):** Build command `pip install -r requirements.txt && python manage.py collectstatic --no-input`, Start command `gunicorn config.wsgi:application`
-- **Frontend (Vercel):** Build command `npm run build`, Output `dist`, Env `VITE_API_URL=https://your-api.onrender.com/api/`
+Open another terminal:
 
-*(See detailed instructions in [`DEPLOYMENT.md`](./DEPLOYMENT.md))*
+```bash
+cd frontend
+
+npm install
+
+npm run dev
+```
+
+Frontend:
+
+```text
+http://localhost:5173/
+```
+
+---
+
+## 🔐 Environment Variables
+
+Create a `.env` file for the backend:
+
+```env
+SECRET_KEY=your-django-secret-key
+DEBUG=True
+
+GEMINI_API_KEY=your-gemini-api-key
+
+DATABASE_URL=your-supabase-postgresql-connection-string
+```
+
+For the frontend:
+
+```env
+VITE_API_URL=http://127.0.0.1:8000/api/
+```
+
+> Never commit `.env` files or API keys to GitHub.
+
+---
+
+## ☁️ Production Deployment
+
+### Frontend — Vercel
+
+```text
+Build Command:
+npm run build
+
+Output Directory:
+dist
+```
+
+Environment variable:
+
+```env
+VITE_API_URL=https://your-api.onrender.com/api/
+```
+
+### Backend — Render
+
+Build command:
+
+```bash
+pip install -r requirements.txt && python manage.py collectstatic --no-input
+```
+
+Start command:
+
+```bash
+gunicorn config.wsgi:application
+```
+
+### Database — Supabase
+
+The production backend uses **Supabase PostgreSQL** for cloud database persistence.
+
+---
+
+## 📊 Key Technical Highlights
+
+* AI-powered PDF resume parsing
+* Structured JSON extraction from unstructured documents
+* LLM-based candidate-job evaluation
+* Rule-based fallback matching
+* REST API architecture
+* PostgreSQL JSONB data storage
+* Multipart PDF file uploads
+* React dashboard
+* Cloud deployment
+* Separation of frontend, backend, and database layers
+
+---
+
+## 🔮 Future Enhancements
+
+* [ ] Resume-to-job semantic embeddings
+* [ ] Vector database integration
+* [ ] Recruiter dashboard
+* [ ] Resume improvement recommendations
+* [ ] Job recommendation engine
+* [ ] Authentication and user accounts
+* [ ] Email notifications for high-match jobs
+* [ ] Resume scoring and ATS keyword analysis
+* [ ] Advanced analytics dashboard
+
+---
+
+## 👨‍💻 Author
+
+**Madhan S**
+
+**Full Stack Python Developer**
+
+* GitHub: `https://github.com/madhansamy-2226`
+* LinkedIn: `https://linkedin.com/in/madhan-sn2226`
+
+---
+
+## 📄 License
+
+This project is developed for **educational, portfolio, and demonstration purposes**.
