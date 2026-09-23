@@ -21,10 +21,20 @@ export default function ParsedResume({ data, onMatch }) {
     setError('');
 
     try {
-      const response = await api.post(`match/${id}/`);
+      const endpoint = id ? `match/${id}/` : 'match/';
+      const response = await api.post(endpoint, {
+        resume_id: id,
+        parsed_data,
+        raw_text: data.raw_text || summary || ''
+      });
       onMatch(response.data);
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to match candidate with job postings.');
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.detail ||
+        err.message ||
+        'Failed to match candidate with job postings.';
+      setError(message);
       setIsLoading(false);
     }
   };

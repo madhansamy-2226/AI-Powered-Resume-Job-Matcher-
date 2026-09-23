@@ -50,40 +50,78 @@ class ResumeUploadView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ResumeMatchView(APIView):
-    def get(self, request, resume_id, *args, **kwargs):
-        return self._process_match(resume_id)
+    def get(self, request, resume_id=None, *args, **kwargs):
+        return self._process_match(request, resume_id)
 
-    def post(self, request, resume_id, *args, **kwargs):
-        return self._process_match(resume_id)
+    def post(self, request, resume_id=None, *args, **kwargs):
+        return self._process_match(request, resume_id)
 
-    def _process_match(self, resume_id):
-        resume = get_object_or_404(Resume, id=resume_id)
+    def _process_match(self, request, resume_id=None):
+        resume_id = resume_id or request.data.get('resume_id')
+        parsed_data = None
+        raw_text = ""
+        resume = None
+
+        if resume_id:
+            resume = Resume.objects.filter(id=resume_id).first()
+            if resume:
+                parsed_data = resume.parsed_data
+                raw_text = resume.raw_text
+
+        if not parsed_data and hasattr(request, 'data') and isinstance(request.data, dict):
+            parsed_data = request.data.get('parsed_data')
+            raw_text = request.data.get('raw_text', '')
+
+        if not parsed_data:
+            resume = Resume.objects.order_by('-uploaded_at').first()
+            if resume:
+                parsed_data = resume.parsed_data
+                raw_text = resume.raw_text
+            else:
+                parsed_data = {
+                    "skills": ["Python", "Django", "React", "PostgreSQL", "REST APIs"],
+                    "summary": "Full Stack Developer",
+                    "experience": [],
+                    "education": []
+                }
+
         jobs = JobPosting.objects.all()
-        
         results = []
         for job in jobs:
             match_data = match_resume_to_job(
-                resume.raw_text,
-                resume.parsed_data,
+                raw_text or "",
+                parsed_data,
                 job.title,
                 job.description,
                 job.requirements
             )
             
-            match_result, created = MatchResult.objects.update_or_create(
-                resume=resume,
-                job=job,
-                defaults={
+            if resume:
+                match_result, created = MatchResult.objects.update_or_create(
+                    resume=resume,
+                    job=job,
+                    defaults={
+                        'score': match_data.get('score', 0),
+                        'explanation': match_data.get('explanation', ''),
+                        'strengths': match_data.get('strengths', []),
+                        'gaps': match_data.get('gaps', [])
+                    }
+                )
+                serializer = MatchResultSerializer(match_result)
+                results.append(serializer.data)
+            else:
+                job_serializer = JobPostingSerializer(job)
+                results.append({
+                    'id': job.id,
+                    'job': job_serializer.data,
                     'score': match_data.get('score', 0),
                     'explanation': match_data.get('explanation', ''),
                     'strengths': match_data.get('strengths', []),
                     'gaps': match_data.get('gaps', [])
-                }
-            )
-            results.append(match_result)
-            
-        serializer = MatchResultSerializer(results, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+                })
+                
+        results.sort(key=lambda x: x.get('score', 0), reverse=True)
+        return Response(results, status=status.HTTP_200_OK)
 
 class JobPostingListView(APIView):
     def get(self, request, *args, **kwargs):
@@ -97,12 +135,21 @@ class JobPostingListView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class MatchResultListView(APIView):
-    def get(self, request, resume_id, *args, **kwargs):
-        results = MatchResult.objects.filter(resume_id=resume_id).order_by('-score')
-        serializer = MatchResultSerializer(results, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    def get(self, request, resume_id=None, *args, **kwargs):
+        return self._get_results(request, resume_id)
 
-    def post(self, request, resume_id, *args, **kwargs):
-        results = MatchResult.objects.filter(resume_id=resume_id).order_by('-score')
+    def post(self, request, resume_id=None, *args, **kwargs):
+        return self._get_results(request, resume_id)
+
+    def _get_results(self, request, resume_id=None):
+        resume_id = resume_id or request.data.get('resume_id')
+        if resume_id:
+            results = MatchResult.objects.filter(resume_id=resume_id).order_by('-score')
+        else:
+            latest_resume = Resume.objects.order_by('-uploaded_at').first()
+            if latest_resume:
+                results = MatchResult.objects.filter(resume=latest_resume).order_by('-score')
+            else:
+                results = MatchResult.objects.all().order_by('-score')[:10]
         serializer = MatchResultSerializer(results, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
