@@ -56,7 +56,7 @@ function App() {
                 AI Resume Matcher
               </div>
               <div className="text-xs text-slate-500 hidden sm:block">
-                Django REST Framework & Gemini AI
+                Django REST Framework & AI Matching Engine
               </div>
             </div>
           </div>
@@ -69,7 +69,7 @@ function App() {
             </div>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 font-medium border border-indigo-100">
               <span className="w-2 h-2 rounded-full bg-indigo-500" />
-              <span>Gemini 2.0 Flash</span>
+              <span>AI Match Engine</span>
             </div>
           </div>
         </div>
@@ -140,7 +140,7 @@ function App() {
         <div className="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <span>AI Resume Matcher • Fresher Engineering Project</span>
           <span className="text-slate-400">
-            Django • PostgreSQL (Supabase) • Gemini API • React
+            Django • PostgreSQL (Supabase) • AI Match Engine • React
           </span>
         </div>
       </footer>

@@ -160,7 +160,7 @@ export default function ResumeUpload({ onSuccess }) {
         err.response?.data?.detail ||
         (err.message === 'Network Error'
           ? 'Cannot connect to backend server. Please ensure the Django backend is running at http://localhost:8000.'
-          : err.message || 'Failed to extract resume with Gemini AI.');
+          : err.message || 'Failed to extract resume data.');
       setError(message);
     } finally {
       setIsLoading(false);
@@ -182,7 +182,7 @@ export default function ResumeUpload({ onSuccess }) {
         <div className="mb-6">
           <h2 className="text-lg font-bold text-slate-900">Upload Resume (PDF)</h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Gemini AI will extract skills, experience, and education structured data.
+            AI Engine will extract skills, experience, and education structured data.
           </p>
         </div>
 
@@ -265,7 +265,7 @@ export default function ResumeUpload({ onSuccess }) {
             }`}
           >
             {isLoading ? (
-              <span>Extracting Skills with Gemini...</span>
+              <span>Extracting Skills with AI...</span>
             ) : (
               <span>Upload & Analyze</span>
             )}
