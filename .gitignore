@@ -1,0 +1,31 @@
+# Environment variables & secrets
+.env
+*.env
+backend/.env
+
+# Python & Django
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+dist/
+build/
+venv/
+backend/venv/
+backend/media/
+db.sqlite3
+staticfiles/
+backend/staticfiles/
+
+# Node
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# IDE & OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
