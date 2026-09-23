@@ -20,7 +20,7 @@ COMMON_SKILLS = [
 
 def get_client():
     key = os.environ.get('GEMINI_API_KEY', '').strip()
-    if not key:
+    if not key or key == 'YOUR_API_KEY' or key.startswith('gen-lang-client-'):
         return None
     try:
         return genai.Client(api_key=key)
