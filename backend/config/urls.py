@@ -7,6 +7,7 @@ from resumes.views import APIRootView
 
 urlpatterns = [
     path('', APIRootView.as_view(), name='root'),
+    path('health/', APIRootView.as_view(), name='health'),
     path('admin/', admin.site.urls),
     path('api/', include('resumes.urls')),
 ]

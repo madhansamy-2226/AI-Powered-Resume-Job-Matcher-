@@ -2,7 +2,7 @@ import pdfplumber
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.parsers import MultiPartParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.shortcuts import get_object_or_404
 from .models import Resume, JobPosting, MatchResult
 from .serializers import (
@@ -25,11 +25,11 @@ class APIRootView(APIView):
                 "match": request.build_absolute_uri("match/"),
                 "results": request.build_absolute_uri("results/"),
             },
-            "frontend_app": "http://10.91.234.192:5173"
+            "frontend_app": "http://localhost:5173"
         }, status=status.HTTP_200_OK)
 
 class ResumeUploadView(APIView):
-    parser_classes = [MultiPartParser]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get(self, request, *args, **kwargs):
         resumes = Resume.objects.order_by('-uploaded_at')[:10]
