@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import api from '../api';
+import { matchCandidateClient } from '../clientMatcher';
 
 export default function ParsedResume({ data, onMatch }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -29,12 +30,19 @@ export default function ParsedResume({ data, onMatch }) {
       });
       onMatch(response.data);
     } catch (err) {
-      const message =
-        err.response?.data?.error ||
-        err.response?.data?.detail ||
-        err.message ||
-        'Failed to match candidate with job postings.';
-      setError(message);
+      console.warn('Backend match endpoint error, using client-side matching engine fallback:', err);
+      try {
+        const results = matchCandidateClient(parsed_data, data.raw_text || summary || '');
+        onMatch(results);
+      } catch (clientErr) {
+        const message =
+          err.response?.data?.error ||
+          err.response?.data?.detail ||
+          err.message ||
+          'Failed to match candidate with job postings.';
+        setError(message);
+      }
+    } finally {
       setIsLoading(false);
     }
   };

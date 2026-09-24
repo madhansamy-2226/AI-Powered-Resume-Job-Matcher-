@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import api from '../api';
+import { extractPdfText, parseResumeClient } from '../clientMatcher';
 
 const DEMO_PROFILES = [
   {
@@ -155,13 +156,14 @@ export default function ResumeUpload({ onSuccess }) {
       });
       onSuccess(response.data);
     } catch (err) {
-      const message =
-        err.response?.data?.error ||
-        err.response?.data?.detail ||
-        (err.message === 'Network Error'
-          ? 'Cannot connect to backend server. Please ensure the Django backend is running at http://localhost:8000.'
-          : err.message || 'Failed to extract resume data.');
-      setError(message);
+      console.warn('Backend upload encountered issue, executing resilient client-side analysis:', err);
+      try {
+        const rawText = await extractPdfText(file);
+        const parsedResult = parseResumeClient(rawText, file.name);
+        onSuccess(parsedResult);
+      } catch (clientErr) {
+        setError('Failed to extract resume data. Please try another PDF or use a sample profile below.');
+      }
     } finally {
       setIsLoading(false);
     }
